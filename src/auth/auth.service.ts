@@ -8,7 +8,7 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { randomBytes } from 'crypto';
-import { EmailService } from 'src/email/email.service';
+import { EmailService } from '../email/email.service';
 
 
 @Injectable()
