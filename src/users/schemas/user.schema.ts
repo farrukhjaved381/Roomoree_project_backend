@@ -22,6 +22,15 @@ export class User {
 
   @Prop({ enum: UserRole, default: UserRole.GUEST })
   role: UserRole;
+
+  @Prop({ default: false })
+  isVerified: boolean;
+
+  @Prop({ required: false })
+  verificationToken?: string;
+
+  @Prop({ required: false })
+  verificationTokenExpires?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

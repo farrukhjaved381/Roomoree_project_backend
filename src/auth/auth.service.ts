@@ -1,21 +1,25 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
-import { UserDocument } from '../users/schemas/user.schema';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { User } from '../users/schemas/user.schema';
+import { User, UserDocument } from '../users/schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { randomBytes } from 'crypto';
+import { EmailService } from 'src/email/email.service';
+
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    @InjectModel(User.name) private userModel: Model<UserDocument>
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly emailService: EmailService, // ✅ add this
   ) {}
+  
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email) as UserDocument;
@@ -25,14 +29,26 @@ export class AuthService {
     }
     return null;
   }
+
   async create(createUserDto: CreateUserDto): Promise<User> {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const verificationToken = randomBytes(32).toString('hex');
+  
     const user = new this.userModel({
       ...createUserDto,
       password: hashedPassword,
+      isVerified: false,
+      verificationToken,
     });
-    return user.save();
+  
+    const savedUser = await user.save();
+  
+    // ✅ Send verification email
+    await this.emailService.sendVerificationEmail(savedUser.email, verificationToken);
+  
+    return savedUser;
   }
+  
 
   async login(loginDto: LoginDto) {
     const user = await this.usersService.findByEmail(loginDto.email) as UserDocument;
@@ -40,6 +56,10 @@ export class AuthService {
 
     const isMatch = await bcrypt.compare(loginDto.password, user.password);
     if (!isMatch) throw new UnauthorizedException('Invalid credentials');
+
+    if (!user.isVerified) {
+      throw new UnauthorizedException('Please verify your email before logging in');
+    }
 
     const payload = { sub: user._id, email: user.email, role: user.role };
     return {
@@ -49,7 +69,21 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: user.role,
-      }
+      },
     };
+  }
+
+  async verifyEmail(email: string, token: string): Promise<{ message: string }> {
+    const user = await this.usersService.findByEmail(email) as UserDocument;
+    if (!user || user.verificationToken !== token || !user.verificationTokenExpires || user.verificationTokenExpires < new Date()) {
+      throw new BadRequestException('Invalid or expired verification token');
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+
+    return { message: 'Email verified successfully' };
   }
 }
