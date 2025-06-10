@@ -18,7 +18,6 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const user_schema_1 = require("./schemas/user.schema");
 const bcrypt = require("bcrypt");
-const crypto = require("crypto");
 let UsersService = class UsersService {
     userModel;
     constructor(userModel) {
@@ -31,23 +30,24 @@ let UsersService = class UsersService {
         return this.userModel.find().exec();
     }
     async create(createUserDto) {
-        const { email, password, name, role } = createUserDto;
+        const { email, password, ...rest } = createUserDto;
         const existingUser = await this.findByEmail(email);
         if (existingUser) {
             throw new common_1.BadRequestException('Email already exists');
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const verificationToken = crypto.randomBytes(32).toString('hex');
-        const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        const hashedPassword = password ? await bcrypt.hash(password, 10) : '';
         const user = new this.userModel({
-            name,
+            ...rest,
             email,
             password: hashedPassword,
-            role,
-            verificationToken,
-            verificationTokenExpires,
         });
         return user.save();
+    }
+    async findByResetToken(token) {
+        return this.userModel.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: new Date() },
+        }).exec();
     }
 };
 exports.UsersService = UsersService;

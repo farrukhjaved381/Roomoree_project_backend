@@ -8,4 +8,7 @@ export declare class CreateUserDto {
     email: string;
     password: string;
     role: UserRole;
+    verificationToken?: string;
+    verificationTokenExpires?: Date;
+    isVerified?: boolean;
 }

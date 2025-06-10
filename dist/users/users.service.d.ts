@@ -7,4 +7,5 @@ export declare class UsersService {
     findByEmail(email: string): Promise<UserDocument | null>;
     findAll(): Promise<UserDocument[]>;
     create(createUserDto: CreateUserDto): Promise<UserDocument>;
+    findByResetToken(token: string): Promise<UserDocument | null>;
 }

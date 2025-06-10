@@ -22,6 +22,9 @@ class CreateUserDto {
     email;
     password;
     role;
+    verificationToken;
+    verificationTokenExpires;
+    isVerified;
 }
 exports.CreateUserDto = CreateUserDto;
 __decorate([
@@ -41,4 +44,19 @@ __decorate([
     (0, class_validator_1.IsEnum)(UserRole),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "role", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "verificationToken", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsDate)(),
+    __metadata("design:type", Date)
+], CreateUserDto.prototype, "verificationTokenExpires", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateUserDto.prototype, "isVerified", void 0);
 //# sourceMappingURL=create-user.dto.js.map

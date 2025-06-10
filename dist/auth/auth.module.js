@@ -10,29 +10,38 @@ exports.AuthModule = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const auth_controller_1 = require("./auth.controller");
-const users_module_1 = require("src/users/users.module");
+const users_module_1 = require("../users/users.module");
 const jwt_1 = require("@nestjs/jwt");
 const passport_1 = require("@nestjs/passport");
 const jwt_strategy_1 = require("./jwt.strategy");
 const mongoose_1 = require("@nestjs/mongoose");
-const user_schema_1 = require("src/users/schemas/user.schema");
-const email_module_1 = require("src/email/email.module");
+const user_schema_1 = require("../users/schemas/user.schema");
+const email_module_1 = require("../email/email.module");
+const google_strategy_1 = require("./google.strategy");
+const config_1 = require("@nestjs/config");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
 exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            config_1.ConfigModule,
             users_module_1.UsersModule,
             email_module_1.EmailModule,
             passport_1.PassportModule,
-            jwt_1.JwtModule.register({
-                secret: process.env.JWT_SECRET,
-                signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '1d' },
+            jwt_1.JwtModule.registerAsync({
+                imports: [config_1.ConfigModule],
+                useFactory: async (configService) => ({
+                    secret: configService.get('JWT_SECRET'),
+                    signOptions: {
+                        expiresIn: configService.get('JWT_EXPIRES_IN') || '1d',
+                    },
+                }),
+                inject: [config_1.ConfigService],
             }),
             mongoose_1.MongooseModule.forFeature([{ name: user_schema_1.User.name, schema: user_schema_1.UserSchema }]),
         ],
-        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy],
+        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, google_strategy_1.GoogleStrategy],
         controllers: [auth_controller_1.AuthController],
     })
 ], AuthModule);

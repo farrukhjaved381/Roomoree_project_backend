@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, IsEnum } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsEnum, IsOptional, IsBoolean, IsDate } from 'class-validator';
 
 export enum UserRole {
   Guest = 'guest',
@@ -19,4 +19,16 @@ export class CreateUserDto {
 
   @IsEnum(UserRole)
   role: UserRole;
+
+  @IsOptional()
+  @IsString()
+  verificationToken?: string;
+
+  @IsOptional()
+  @IsDate()
+  verificationTokenExpires?: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  isVerified?: boolean;
 }

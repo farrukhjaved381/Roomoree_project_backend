@@ -1,54 +1,77 @@
-import { Injectable, UnauthorizedException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
+import { EmailService } from '../email/email.service';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { User, UserDocument } from '../users/schemas/user.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { UserDocument } from '../users/schemas/user.schema';
+import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
-import { EmailService } from '../email/email.service';
-
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private readonly emailService: EmailService, // ✅ add this
+    private readonly emailService: EmailService,
   ) {}
-  
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email) as UserDocument;
-    if (user && await bcrypt.compare(password, user.password)) {
+    if (user && (await bcrypt.compare(password, user.password))) {
       const { password, ...result } = user.toObject();
       return result;
     }
     return null;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+  async register(createUserDto: CreateUserDto): Promise<{ message: string }> {
+    const { email } = createUserDto;
+
+    const existingUser = await this.usersService.findByEmail(email);
     const verificationToken = randomBytes(32).toString('hex');
-  
-    const user = new this.userModel({
-      ...createUserDto,
-      password: hashedPassword,
-      isVerified: false,
-      verificationToken,
-    });
-  
-    const savedUser = await user.save();
-  
-    // ✅ Send verification email
-    await this.emailService.sendVerificationEmail(savedUser.email, verificationToken);
-  
-    return savedUser;
+    const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    let user;
+
+    if (existingUser && existingUser.isVerified) {
+      throw new BadRequestException('User already registered and verified');
+    }
+
+    if (existingUser) {
+      existingUser.verificationToken = verificationToken;
+      existingUser.verificationTokenExpires = verificationTokenExpires;
+      await existingUser.save();
+      user = existingUser;
+    } else {
+      // Pass token into createUserDto explicitly
+      const userDtoWithToken: any = {
+        ...createUserDto,
+        verificationToken,
+        verificationTokenExpires,
+        isVerified: false,
+      };
+
+      user = await this.usersService.create(userDtoWithToken);
+    }
+
+    console.log('Registering user:', user.email);
+    console.log('Using token:', verificationToken);
+
+    try {
+      await this.emailService.sendVerificationEmail(user.email, verificationToken);
+    } catch (error) {
+      console.error('Email sending failed:', error);
+      throw new InternalServerErrorException('Failed to send verification email');
+    }
+
+    return { message: 'User registered. Please verify your email.' };
   }
-  
 
   async login(loginDto: LoginDto) {
     const user = await this.usersService.findByEmail(loginDto.email) as UserDocument;
@@ -72,18 +95,33 @@ export class AuthService {
       },
     };
   }
-
-  async verifyEmail(email: string, token: string): Promise<{ message: string }> {
-    const user = await this.usersService.findByEmail(email) as UserDocument;
-    if (!user || user.verificationToken !== token || !user.verificationTokenExpires || user.verificationTokenExpires < new Date()) {
-      throw new BadRequestException('Invalid or expired verification token');
-    }
-
-    user.isVerified = true;
-    user.verificationToken = undefined;
-    user.verificationTokenExpires = undefined;
+  async sendPasswordResetEmail(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) throw new BadRequestException('User not found');
+  
+    const resetToken = randomBytes(32).toString('hex');
+    const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+  
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = resetExpires;
     await user.save();
-
-    return { message: 'Email verified successfully' };
+  
+    const resetLink = `http://localhost:3000/auth/reset-password?token=${resetToken}`;
+    await this.emailService.sendResetPasswordEmail(user.email, resetLink);
+  
+    return { message: 'Reset link sent to email' };
   }
+  
+  async resetPassword(token: string, newPassword: string) {
+    const user = await this.usersService.findByResetToken(token);
+    if (!user) throw new BadRequestException('Invalid or expired token');
+  
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+  
+    return { message: 'Password updated successfully' };
+  }
+  
 }

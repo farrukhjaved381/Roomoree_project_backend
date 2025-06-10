@@ -1,9 +1,11 @@
 // app.module.ts
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { RoomsModule } from './rooms/rooms.module';
+import { BookingsModule } from './bookings/bookings.module';
 
 
 @Module({
@@ -12,6 +14,8 @@ import { AuthModule } from './auth/auth.module';
     MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/roomoree'),
     UsersModule,
     AuthModule,
+    RoomsModule,
+    BookingsModule,
     // other modules
   ],
 })
