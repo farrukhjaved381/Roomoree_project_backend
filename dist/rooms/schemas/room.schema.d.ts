@@ -1,4 +1,4 @@
-import { Document, Types } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 export type RoomDocument = Room & Document;
 export declare class Room {
     title: string;
@@ -6,13 +6,14 @@ export declare class Room {
     price: number;
     location: string;
     images: string[];
-    host: Types.ObjectId;
+    host: mongoose.Types.ObjectId;
+    reviews: mongoose.Types.ObjectId[];
 }
-export declare const RoomSchema: import("mongoose").Schema<Room, import("mongoose").Model<Room, any, any, any, Document<unknown, any, Room, any> & Room & {
+export declare const RoomSchema: mongoose.Schema<Room, mongoose.Model<Room, any, any, any, mongoose.Document<unknown, any, Room, any> & Room & {
     _id: Types.ObjectId;
 } & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, Room, Document<unknown, {}, import("mongoose").FlatRecord<Room>, {}> & import("mongoose").FlatRecord<Room> & {
+}, any>, {}, {}, {}, {}, mongoose.DefaultSchemaOptions, Room, mongoose.Document<unknown, {}, mongoose.FlatRecord<Room>, {}> & mongoose.FlatRecord<Room> & {
     _id: Types.ObjectId;
 } & {
     __v: number;

@@ -16,7 +16,7 @@ exports.BookingsController = void 0;
 const common_1 = require("@nestjs/common");
 const bookings_service_1 = require("./bookings.service");
 const create_booking_dto_1 = require("./dto/create-booking.dto");
-const jwt_guard_1 = require("../auth/jwt.guard");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
 const user_schema_1 = require("../users/schemas/user.schema");
@@ -27,16 +27,24 @@ let BookingsController = class BookingsController {
         this.bookingsService = bookingsService;
     }
     create(dto, req) {
-        return this.bookingsService.create(dto, req.user.userId);
+        console.log('Creating booking for guest:', req.user);
+        return this.bookingsService.create(dto, req.user._id);
     }
     findMyBookings(req) {
-        return this.bookingsService.findGuestBookings(req.user.userId);
+        return this.bookingsService.findGuestBookings(req.user._id);
     }
     findHostBookings(req) {
-        return this.bookingsService.findHostBookings(req.user.userId);
+        return this.bookingsService.findHostBookings(req.user._id);
     }
     delete(id, req) {
-        return this.bookingsService.deleteBooking(id, req.user.userId);
+        return this.bookingsService.deleteBooking(id, req.user._id);
+    }
+    acceptBooking(id, req) {
+        console.log('Host attempting accept:', req.user);
+        return this.bookingsService.acceptBooking(id, req.user._id);
+    }
+    declineBooking(id, req) {
+        return this.bookingsService.declineBooking(id, req.user._id);
     }
 };
 exports.BookingsController = BookingsController;
@@ -66,6 +74,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], BookingsController.prototype, "findHostBookings", null);
 __decorate([
+    (0, roles_decorator_1.Roles)(user_schema_1.UserRole.GUEST, user_schema_1.UserRole.HOST),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
@@ -73,11 +82,29 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], BookingsController.prototype, "delete", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(user_schema_1.UserRole.HOST),
+    (0, common_1.Patch)(':id/accept'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], BookingsController.prototype, "acceptBooking", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(user_schema_1.UserRole.HOST),
+    (0, common_1.Patch)(':id/decline'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], BookingsController.prototype, "declineBooking", null);
 exports.BookingsController = BookingsController = __decorate([
     (0, swagger_1.ApiTags)('Bookings'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.Controller)('bookings'),
-    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [bookings_service_1.BookingsService])
 ], BookingsController);
 //# sourceMappingURL=bookings.controller.js.map

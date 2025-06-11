@@ -9,10 +9,15 @@ import { UpdateRoomDto } from './dto/update-room.dto';
 export class RoomsService {
   constructor(@InjectModel(Room.name) private roomModel: Model<RoomDocument>) {}
 
-  async create(createRoomDto: CreateRoomDto, hostId: string): Promise<Room> {
-    const room = new this.roomModel({ ...createRoomDto, host: hostId });
-    return room.save();
+  async create(dto: CreateRoomDto, images: string[], hostId: string) {
+    const newRoom = new this.roomModel({
+      ...dto,
+      host: hostId,
+      images,
+    });
+    return newRoom.save();
   }
+  
 
   async findAll(): Promise<Room[]> {
     return this.roomModel.find().populate('host', 'name email');
@@ -34,4 +39,46 @@ export class RoomsService {
     const result = await this.roomModel.findByIdAndDelete(id);
     if (!result) throw new NotFoundException('Room not found');
   }
+
+  async searchRooms(filters: {
+    location?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    keyword?: string;
+  }): Promise<Room[]> {
+    const query: any = {};
+  
+    if (filters.location) {
+      query.location = { $regex: filters.location, $options: 'i' };
+    }
+  
+    if (filters.minPrice || filters.maxPrice) {
+      query.price = {};
+      if (filters.minPrice) query.price.$gte = filters.minPrice;
+      if (filters.maxPrice) query.price.$lte = filters.maxPrice;
+    }
+  
+    if (filters.keyword) {
+      query.$or = [
+        { title: { $regex: filters.keyword, $options: 'i' } },
+        { description: { $regex: filters.keyword, $options: 'i' } },
+      ];
+    }
+  
+    return this.roomModel
+      .find(query)
+      .populate('host', 'name email') // optional host info
+      .exec();
+  }
+  async findByIdWithDetails(id: string) {
+    return this.roomModel
+      .findById(id)
+      .populate('host', 'name email') // Show host basic info
+      .populate({
+        path: 'reviews',
+        populate: { path: 'guest', select: 'name' } // if you link reviews
+      })
+      .exec();
+  }
+  
 }

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 
 export type RoomDocument = Room & Document;
 
@@ -19,9 +19,14 @@ export class Room {
 
   @Prop({ type: [String], default: [] })
   images: string[];
+  
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  host: Types.ObjectId;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' , required: true })
+  host: mongoose.Types.ObjectId;
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }], default: [] })
+reviews: mongoose.Types.ObjectId[];
+
 }
 
 export const RoomSchema = SchemaFactory.createForClass(Room);

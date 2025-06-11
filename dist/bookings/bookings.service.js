@@ -17,28 +17,40 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const booking_schema_1 = require("./schemas/booking.schema");
+const booking_status_enum_1 = require("./enums/booking-status.enum");
+const room_schema_1 = require("../rooms/schemas/room.schema");
 let BookingsService = class BookingsService {
     bookingModel;
-    constructor(bookingModel) {
+    roomModel;
+    constructor(bookingModel, roomModel) {
         this.bookingModel = bookingModel;
+        this.roomModel = roomModel;
     }
     async create(createDto, guestId) {
         const booking = new this.bookingModel({ ...createDto, guest: guestId });
         return booking.save();
     }
     async findGuestBookings(guestId) {
-        return this.bookingModel
+        return (await this.bookingModel
             .find({ guest: guestId })
-            .populate('room');
+            .populate({ path: 'room', populate: { path: 'host' } })
+            .exec());
     }
     async findHostBookings(hostId) {
-        return this.bookingModel.find().populate({
+        return (await this.bookingModel
+            .find()
+            .populate({
             path: 'room',
+            populate: { path: 'host' },
             match: { host: hostId },
-        });
+        })
+            .exec());
     }
     async deleteBooking(id, userId) {
-        const booking = await this.bookingModel.findById(id).populate('room').exec();
+        const booking = await this.bookingModel
+            .findById(id)
+            .populate({ path: 'room', populate: { path: 'host' } })
+            .exec();
         if (!booking)
             throw new common_1.NotFoundException('Booking not found');
         if (booking.guest.toString() !== userId &&
@@ -47,11 +59,55 @@ let BookingsService = class BookingsService {
         }
         await this.bookingModel.findByIdAndDelete(id);
     }
+    async acceptBooking(bookingId, hostId) {
+        const booking = await this.bookingModel
+            .findById(bookingId)
+            .populate({
+            path: 'room',
+            populate: { path: 'host' }
+        })
+            .exec();
+        if (!booking)
+            throw new common_1.NotFoundException('Booking not found.');
+        const room = booking.room;
+        const host = room.host;
+        const roomHostId = host._id?.toString?.() ?? host?.toString?.();
+        console.log('Host in DB:', roomHostId);
+        console.log('Host from token:', hostId);
+        if (roomHostId !== hostId) {
+            throw new common_1.ForbiddenException('You are not allowed to accept this booking.');
+        }
+        booking.status = booking_status_enum_1.BookingStatus.ACCEPTED;
+        return booking.save();
+    }
+    async declineBooking(bookingId, hostId) {
+        const booking = await this.bookingModel
+            .findById(bookingId)
+            .populate({
+            path: 'room',
+            populate: { path: 'host' }
+        })
+            .exec();
+        if (!booking)
+            throw new common_1.NotFoundException('Booking not found.');
+        const room = booking.room;
+        const host = room.host;
+        const roomHostId = host._id?.toString?.() ?? host?.toString?.();
+        console.log('Host in DB:', roomHostId);
+        console.log('Host from token:', hostId);
+        if (roomHostId !== hostId) {
+            throw new common_1.ForbiddenException('You are not allowed to decline this booking.');
+        }
+        booking.status = booking_status_enum_1.BookingStatus.DECLINED;
+        return booking.save();
+    }
 };
 exports.BookingsService = BookingsService;
 exports.BookingsService = BookingsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(booking_schema_1.Booking.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __param(1, (0, mongoose_1.InjectModel)(room_schema_1.Room.name)),
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model])
 ], BookingsService);
 //# sourceMappingURL=bookings.service.js.map

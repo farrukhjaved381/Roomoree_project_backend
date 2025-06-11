@@ -12,7 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BookingSchema = exports.Booking = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
-let Booking = class Booking {
+const booking_status_enum_1 = require("../enums/booking-status.enum");
+let Booking = class Booking extends mongoose_2.Document {
     guest;
     room;
     checkInDate;
@@ -21,23 +22,23 @@ let Booking = class Booking {
 };
 exports.Booking = Booking;
 __decorate([
-    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'User', required: true }),
-    __metadata("design:type", mongoose_2.Types.ObjectId)
+    (0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'User', required: true }),
+    __metadata("design:type", mongoose_2.default.Types.ObjectId)
 ], Booking.prototype, "guest", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'Room', required: true }),
-    __metadata("design:type", mongoose_2.Types.ObjectId)
+    (0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Room', required: true }),
+    __metadata("design:type", mongoose_2.default.Types.ObjectId)
 ], Booking.prototype, "room", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)({ type: Date, required: true }),
     __metadata("design:type", Date)
 ], Booking.prototype, "checkInDate", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)({ type: Date, required: true }),
     __metadata("design:type", Date)
 ], Booking.prototype, "checkOutDate", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ default: 'pending' }),
+    (0, mongoose_1.Prop)({ enum: booking_status_enum_1.BookingStatus, default: booking_status_enum_1.BookingStatus.PENDING }),
     __metadata("design:type", String)
 ], Booking.prototype, "status", void 0);
 exports.Booking = Booking = __decorate([

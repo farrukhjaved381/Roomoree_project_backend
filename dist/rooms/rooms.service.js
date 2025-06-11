@@ -22,9 +22,13 @@ let RoomsService = class RoomsService {
     constructor(roomModel) {
         this.roomModel = roomModel;
     }
-    async create(createRoomDto, hostId) {
-        const room = new this.roomModel({ ...createRoomDto, host: hostId });
-        return room.save();
+    async create(dto, images, hostId) {
+        const newRoom = new this.roomModel({
+            ...dto,
+            host: hostId,
+            images,
+        });
+        return newRoom.save();
     }
     async findAll() {
         return this.roomModel.find().populate('host', 'name email');
@@ -45,6 +49,39 @@ let RoomsService = class RoomsService {
         const result = await this.roomModel.findByIdAndDelete(id);
         if (!result)
             throw new common_1.NotFoundException('Room not found');
+    }
+    async searchRooms(filters) {
+        const query = {};
+        if (filters.location) {
+            query.location = { $regex: filters.location, $options: 'i' };
+        }
+        if (filters.minPrice || filters.maxPrice) {
+            query.price = {};
+            if (filters.minPrice)
+                query.price.$gte = filters.minPrice;
+            if (filters.maxPrice)
+                query.price.$lte = filters.maxPrice;
+        }
+        if (filters.keyword) {
+            query.$or = [
+                { title: { $regex: filters.keyword, $options: 'i' } },
+                { description: { $regex: filters.keyword, $options: 'i' } },
+            ];
+        }
+        return this.roomModel
+            .find(query)
+            .populate('host', 'name email')
+            .exec();
+    }
+    async findByIdWithDetails(id) {
+        return this.roomModel
+            .findById(id)
+            .populate('host', 'name email')
+            .populate({
+            path: 'reviews',
+            populate: { path: 'guest', select: 'name' }
+        })
+            .exec();
     }
 };
 exports.RoomsService = RoomsService;

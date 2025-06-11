@@ -1,26 +1,18 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNumber, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+
 export class CreateRoomDto {
   @IsString()
-  @IsNotEmpty()
-  @ApiProperty({ example: 'Modern Apartment in Lahore' })
   title: string;
 
-  @IsString()
   @IsOptional()
-  @ApiProperty({ example: 'Spacious room with AC and WiFi' })
-  description: string;
+  @IsString()
+  description?: string;
 
   @IsNumber()
-  @ApiProperty({ example: 5000 })
+  @Type(() => Number) // ✅ Fixes your issue
   price: number;
 
   @IsString()
-  @IsOptional()
-  @ApiProperty({ example: 'Lahore, Pakistan' })
   location: string;
-
-  @IsOptional()
-  @ApiProperty({ example: ['https://example.com/image1.jpg'] })
-  images: string[];
 }

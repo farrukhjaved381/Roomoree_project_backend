@@ -11,41 +11,30 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateRoomDto = void 0;
 const class_validator_1 = require("class-validator");
-const swagger_1 = require("@nestjs/swagger");
+const class_transformer_1 = require("class-transformer");
 class CreateRoomDto {
     title;
     description;
     price;
     location;
-    images;
 }
 exports.CreateRoomDto = CreateRoomDto;
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, swagger_1.ApiProperty)({ example: 'Modern Apartment in Lahore' }),
     __metadata("design:type", String)
 ], CreateRoomDto.prototype, "title", void 0);
 __decorate([
-    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    (0, swagger_1.ApiProperty)({ example: 'Spacious room with AC and WiFi' }),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateRoomDto.prototype, "description", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
-    (0, swagger_1.ApiProperty)({ example: 5000 }),
+    (0, class_transformer_1.Type)(() => Number),
     __metadata("design:type", Number)
 ], CreateRoomDto.prototype, "price", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    (0, swagger_1.ApiProperty)({ example: 'Lahore, Pakistan' }),
     __metadata("design:type", String)
 ], CreateRoomDto.prototype, "location", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, swagger_1.ApiProperty)({ example: ['https://example.com/image1.jpg'] }),
-    __metadata("design:type", Array)
-], CreateRoomDto.prototype, "images", void 0);
 //# sourceMappingURL=create-room.dto.js.map

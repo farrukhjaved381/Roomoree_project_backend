@@ -14,6 +14,7 @@ const users_module_1 = require("./users/users.module");
 const mongoose_1 = require("@nestjs/mongoose");
 const rooms_module_1 = require("./rooms/rooms.module");
 const bookings_module_1 = require("./bookings/bookings.module");
+const chat_module_1 = require("./chat/chat.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -26,6 +27,7 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             rooms_module_1.RoomsModule,
             bookings_module_1.BookingsModule,
+            chat_module_1.ChatModule,
         ],
     })
 ], AppModule);

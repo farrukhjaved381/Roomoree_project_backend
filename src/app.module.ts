@@ -6,7 +6,7 @@ import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RoomsModule } from './rooms/rooms.module';
 import { BookingsModule } from './bookings/bookings.module';
-
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -16,6 +16,7 @@ import { BookingsModule } from './bookings/bookings.module';
     AuthModule,
     RoomsModule,
     BookingsModule,
+    ChatModule, // Include the ChatModule for WebSocket functionality
     // other modules
   ],
 })

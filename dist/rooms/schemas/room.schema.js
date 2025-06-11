@@ -19,6 +19,7 @@ let Room = class Room {
     location;
     images;
     host;
+    reviews;
 };
 exports.Room = Room;
 __decorate([
@@ -42,9 +43,13 @@ __decorate([
     __metadata("design:type", Array)
 ], Room.prototype, "images", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'User', required: true }),
-    __metadata("design:type", mongoose_2.Types.ObjectId)
+    (0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'User', required: true }),
+    __metadata("design:type", mongoose_2.default.Types.ObjectId)
 ], Room.prototype, "host", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Review' }], default: [] }),
+    __metadata("design:type", Array)
+], Room.prototype, "reviews", void 0);
 exports.Room = Room = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Room);

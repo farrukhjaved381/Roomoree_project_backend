@@ -12,12 +12,14 @@ const rooms_service_1 = require("./rooms.service");
 const rooms_controller_1 = require("./rooms.controller");
 const mongoose_1 = require("@nestjs/mongoose");
 const room_schema_1 = require("./schemas/room.schema");
+const reviews_module_1 = require("../reviews/reviews.module");
 let RoomsModule = class RoomsModule {
 };
 exports.RoomsModule = RoomsModule;
 exports.RoomsModule = RoomsModule = __decorate([
     (0, common_1.Module)({
-        imports: [mongoose_1.MongooseModule.forFeature([{ name: room_schema_1.Room.name, schema: room_schema_1.RoomSchema }])],
+        imports: [mongoose_1.MongooseModule.forFeature([{ name: room_schema_1.Room.name, schema: room_schema_1.RoomSchema }]),
+            reviews_module_1.ReviewsModule],
         controllers: [rooms_controller_1.RoomsController],
         providers: [rooms_service_1.RoomsService],
     })
