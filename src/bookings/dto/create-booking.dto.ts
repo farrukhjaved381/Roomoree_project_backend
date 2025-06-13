@@ -1,18 +1,16 @@
-// File: src/bookings/dto/create-booking.dto.ts
+import { IsDateString, IsMongoId } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsNotEmpty, IsMongoId } from 'class-validator';
 
 export class CreateBookingDto {
+  @ApiProperty({ example: '68492e0d856a68598aabb5cb', description: 'Room ID' })
   @IsMongoId()
-  @IsNotEmpty()
-  @ApiProperty({ example: 'roomObjectIdHere' })
   room: string;
 
+  @ApiProperty({ example: '2025-06-20', description: 'Check-in date (YYYY-MM-DD)' })
   @IsDateString()
-  @ApiProperty({ example: '2025-06-15' })
   checkInDate: string;
 
+  @ApiProperty({ example: '2025-06-25', description: 'Check-out date (YYYY-MM-DD)' })
   @IsDateString()
-  @ApiProperty({ example: '2025-06-18' })
   checkOutDate: string;
 }

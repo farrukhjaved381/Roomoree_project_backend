@@ -3,10 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const config_1 = require("@nestjs/config");
+const path_1 = require("path");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    app.useStaticAssets((0, path_1.join)(__dirname, '..', 'uploads'), {
+        prefix: '/uploads',
+    });
     app.enableCors({
         origin: 'http://localhost:3001',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
@@ -20,14 +24,14 @@ async function bootstrap() {
     }));
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Roomoree API')
-        .setDescription('The Roomoree property booking platform API description. Use JWT token for authorized endpoints.')
+        .setDescription('Roomoree booking platform API documentation. Use JWT Bearer token for access.')
         .setVersion('1.0')
         .addBearerAuth({
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Enter your JWT token obtained after login (e.g., Google Sign-In or local login)',
+        name: 'Authorization',
+        description: 'Enter JWT token here (e.g., after login or Google OAuth)',
         in: 'header',
     }, 'JWT-auth')
         .build();
@@ -36,8 +40,8 @@ async function bootstrap() {
     const configService = app.get(config_1.ConfigService);
     const port = configService.get('PORT') || 3000;
     await app.listen(port);
-    console.log(`Application is running on: ${await app.getUrl()}`);
-    console.log(`Swagger UI available at: ${await app.getUrl()}/api`);
+    console.log(`🚀 Application running on: ${await app.getUrl()}`);
+    console.log(`📘 Swagger docs: ${await app.getUrl()}/api`);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

@@ -80,5 +80,13 @@ export class RoomsService {
       })
       .exec();
   }
-  
+
+
+async getAllRoomsWithHost() {
+  return this.roomModel
+    .find()
+    .populate('host', 'name email role') // show host info
+    .exec();
+}
+
 }

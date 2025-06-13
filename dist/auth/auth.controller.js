@@ -49,6 +49,7 @@ let AuthController = class AuthController {
             verificationToken,
             verificationTokenExpires,
             isVerified: false,
+            provider: 'local',
         });
         console.log('Sending verification to:', user.email);
         console.log('Token stored:', verificationToken);
@@ -100,30 +101,19 @@ let AuthController = class AuthController {
         const { email, name } = req.user;
         let user = await this.usersService.findByEmail(email);
         if (!user) {
-            const verificationToken = (0, crypto_1.randomBytes)(32).toString('hex');
-            const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
             user = await this.usersService.create({
                 email,
                 name,
                 password: '',
                 role: user_schema_1.UserRole.GUEST,
-                isVerified: false,
-                verificationToken,
-                verificationTokenExpires,
+                isVerified: true,
+                verificationToken: undefined,
+                verificationTokenExpires: undefined,
+                provider: 'google',
             });
-            console.log('Created Google user. Token:', verificationToken);
-            await this.emailService.sendVerificationEmail(email, verificationToken);
+            console.log('Created new Google user — auto verified');
         }
-        else if (!user.isVerified) {
-            const verificationToken = (0, crypto_1.randomBytes)(32).toString('hex');
-            const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-            user.verificationToken = verificationToken;
-            user.verificationTokenExpires = verificationTokenExpires;
-            await user.save();
-            console.log('Resent Google user token:', verificationToken);
-            await this.emailService.sendVerificationEmail(email, verificationToken);
-        }
-        if (!user.isVerified) {
+        if (!user.isVerified && user.password) {
             throw new common_1.UnauthorizedException('Please verify your email before logging in.');
         }
         const payload = { sub: user._id, email: user.email, role: user.role };
@@ -135,6 +125,7 @@ let AuthController = class AuthController {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                provider: user.provider,
             },
         };
     }

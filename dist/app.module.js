@@ -15,6 +15,11 @@ const mongoose_1 = require("@nestjs/mongoose");
 const rooms_module_1 = require("./rooms/rooms.module");
 const bookings_module_1 = require("./bookings/bookings.module");
 const chat_module_1 = require("./chat/chat.module");
+const review_schema_1 = require("./reviews/schemas/review.schema");
+const booking_schema_1 = require("./bookings/schemas/booking.schema");
+const reviews_module_1 = require("./reviews/reviews.module");
+const admin_module_1 = require("./admin/admin.module");
+const disputes_module_1 = require("./disputes/disputes.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -24,10 +29,17 @@ exports.AppModule = AppModule = __decorate([
             config_1.ConfigModule.forRoot({ isGlobal: true }),
             mongoose_1.MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/roomoree'),
             users_module_1.UsersModule,
+            mongoose_1.MongooseModule.forFeature([
+                { name: review_schema_1.Review.name, schema: review_schema_1.ReviewSchema },
+                { name: booking_schema_1.Booking.name, schema: booking_schema_1.BookingSchema },
+            ]),
             auth_module_1.AuthModule,
             rooms_module_1.RoomsModule,
+            reviews_module_1.ReviewsModule,
             bookings_module_1.BookingsModule,
+            admin_module_1.AdminModule,
             chat_module_1.ChatModule,
+            disputes_module_1.DisputesModule,
         ],
     })
 ], AppModule);

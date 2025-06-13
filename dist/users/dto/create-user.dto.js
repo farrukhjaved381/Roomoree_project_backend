@@ -21,16 +21,16 @@ class CreateUserDto {
     isVerified;
     verificationToken;
     verificationTokenExpires;
+    provider;
 }
 exports.CreateUserDto = CreateUserDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'The full name of the user',
-        example: 'John Doe',
+        example: 'Muhammad Farrukh',
     }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
-    (0, swagger_1.ApiProperty)({ example: 'Muhammad Farrukh' }),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "name", void 0);
 __decorate([
@@ -94,4 +94,16 @@ __decorate([
     (0, class_validator_1.IsDate)(),
     __metadata("design:type", Date)
 ], CreateUserDto.prototype, "verificationTokenExpires", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Authentication provider (local or google)',
+        example: 'local',
+        enum: ['local', 'google'],
+        required: false,
+        default: 'local',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(['local', 'google']),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "provider", void 0);
 //# sourceMappingURL=create-user.dto.js.map

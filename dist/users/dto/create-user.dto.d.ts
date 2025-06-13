@@ -7,4 +7,5 @@ export declare class CreateUserDto {
     isVerified?: boolean;
     verificationToken?: string;
     verificationTokenExpires?: Date;
+    provider?: 'local' | 'google';
 }

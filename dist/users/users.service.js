@@ -26,9 +26,6 @@ let UsersService = class UsersService {
     async findByEmail(email) {
         return this.userModel.findOne({ email }).exec();
     }
-    async findAll() {
-        return this.userModel.find().exec();
-    }
     async create(createUserDto) {
         const { email, password, ...rest } = createUserDto;
         const existingUser = await this.findByEmail(email);
@@ -48,6 +45,12 @@ let UsersService = class UsersService {
             resetPasswordToken: token,
             resetPasswordExpires: { $gt: new Date() },
         }).exec();
+    }
+    async findAll() {
+        return this.userModel.find().select('-password').exec();
+    }
+    async delete(id) {
+        return this.userModel.findByIdAndDelete(id);
     }
 };
 exports.UsersService = UsersService;

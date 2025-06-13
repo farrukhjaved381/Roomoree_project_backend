@@ -36,6 +36,9 @@ export class User extends Document {
   @Prop()
   resetPasswordExpires?: Date;
 
+  @Prop({ enum: ['local', 'google'], default: 'local' }) 
+  provider: 'local' | 'google';
+
 }
 
 export type UserDocument = User & Document;

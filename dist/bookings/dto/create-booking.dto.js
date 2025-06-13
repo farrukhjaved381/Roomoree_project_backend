@@ -10,8 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateBookingDto = void 0;
-const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class CreateBookingDto {
     room;
     checkInDate;
@@ -19,19 +19,18 @@ class CreateBookingDto {
 }
 exports.CreateBookingDto = CreateBookingDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: '68492e0d856a68598aabb5cb', description: 'Room ID' }),
     (0, class_validator_1.IsMongoId)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, swagger_1.ApiProperty)({ example: 'roomObjectIdHere' }),
     __metadata("design:type", String)
 ], CreateBookingDto.prototype, "room", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: '2025-06-20', description: 'Check-in date (YYYY-MM-DD)' }),
     (0, class_validator_1.IsDateString)(),
-    (0, swagger_1.ApiProperty)({ example: '2025-06-15' }),
     __metadata("design:type", String)
 ], CreateBookingDto.prototype, "checkInDate", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: '2025-06-25', description: 'Check-out date (YYYY-MM-DD)' }),
     (0, class_validator_1.IsDateString)(),
-    (0, swagger_1.ApiProperty)({ example: '2025-06-18' }),
     __metadata("design:type", String)
 ], CreateBookingDto.prototype, "checkOutDate", void 0);
 //# sourceMappingURL=create-booking.dto.js.map

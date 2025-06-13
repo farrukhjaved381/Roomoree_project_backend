@@ -28,6 +28,7 @@ let User = class User extends mongoose_2.Document {
     verificationTokenExpires;
     resetPasswordToken;
     resetPasswordExpires;
+    provider;
 };
 exports.User = User;
 __decorate([
@@ -66,6 +67,10 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", Date)
 ], User.prototype, "resetPasswordExpires", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ enum: ['local', 'google'], default: 'local' }),
+    __metadata("design:type", String)
+], User.prototype, "provider", void 0);
 exports.User = User = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], User);

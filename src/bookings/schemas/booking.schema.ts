@@ -1,20 +1,22 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { BookingStatus } from '../enums/booking-status.enum';
 
+export type BookingDocument = Booking & Document;
+
 @Schema({ timestamps: true })
-export class Booking extends Document {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' , required: true})
-  guest: mongoose.Types.ObjectId;
+export class Booking {
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  guest: Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Room' , required: true})
-  room: mongoose.Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'Room', required: true })
+  room: Types.ObjectId;
 
-  @Prop({ type: Date, required: true })
-  checkInDate: Date;
+  @Prop({ required: true })
+  checkIn: Date;
 
-  @Prop({ type: Date, required: true })
-  checkOutDate: Date;
+  @Prop({ required: true })
+  checkOut: Date;
 
   @Prop({ enum: BookingStatus, default: BookingStatus.PENDING })
   status: BookingStatus;

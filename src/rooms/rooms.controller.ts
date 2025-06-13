@@ -38,7 +38,7 @@ import { Multer } from 'multer';
 @Controller('rooms')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class RoomsController {
-  constructor(private readonly roomsService: RoomsService) {}
+  constructor(private readonly roomsService: RoomsService) { }
 
   // 🔍 Search/filter endpoint
   @Get('/search')
@@ -64,31 +64,27 @@ export class RoomsController {
     }),
   }))
   @ApiOperation({ summary: 'Create a new room (host only)' })
-@ApiConsumes('multipart/form-data')
-@ApiBody({
-  schema: {
-    type: 'object',
-    properties: {
-      title: { type: 'string', example: 'Luxury Apartment' },
-      location: { type: 'string', example: 'Islamabad' },
-      price: { type: 'number', example: 2500 },
-      description: { type: 'string', example: 'Spacious and well-lit' },
-      images: {
-        type: 'array',
-        items: {
-          type: 'string',
-          format: 'binary',
-        },
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', example: 'Luxury Apartment' },
+        location: { type: 'string', example: 'Islamabad' },
+        price: { type: 'number', example: 2500 },
+        description: { type: 'string', example: 'Spacious and well-lit' },
+        images: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' }
+        }
       },
-    },
-    required: ['title', 'location', 'price', 'images'],
-  },
-})
-@ApiResponse({ status: 201, description: 'Room created successfully' })
-@ApiBearerAuth()
+      required: ['title', 'location', 'price', 'images']
+    }
+  })
+  @ApiResponse({ status: 201, description: 'Room created successfully' })
+  @ApiBearerAuth()
   async createRoom(
     @Body() dto: CreateRoomDto,
-    
     @UploadedFiles() files: Multer.File[],
     @Req() req,
   ) {
@@ -121,5 +117,29 @@ export class RoomsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.roomsService.findByIdWithDetails(id);
+  }
+}
+
+@ApiTags('Admin-Rooms')
+@ApiBearerAuth('JWT-auth')
+@Controller('admin/rooms')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class AdminRoomsController {
+  constructor(private readonly roomsService: RoomsService) {}
+
+  @Get()
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Admin: View all rooms with host details' })
+  @ApiResponse({ status: 200, description: 'All room listings with hosts' })
+  getAllRoomsForAdmin() {
+    return this.roomsService.getAllRoomsWithHost();
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Admin: Delete a room by ID' })
+  @ApiResponse({ status: 200, description: 'Room deleted successfully' })
+  deleteRoomByAdmin(@Param('id') id: string) {
+    return this.roomsService.delete(id);
   }
 }

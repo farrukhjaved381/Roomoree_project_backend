@@ -12,7 +12,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RoomsController = void 0;
+exports.AdminRoomsController = exports.RoomsController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const rooms_service_1 = require("./rooms.service");
@@ -88,14 +88,11 @@ __decorate([
                 description: { type: 'string', example: 'Spacious and well-lit' },
                 images: {
                     type: 'array',
-                    items: {
-                        type: 'string',
-                        format: 'binary',
-                    },
-                },
+                    items: { type: 'string', format: 'binary' }
+                }
             },
-            required: ['title', 'location', 'price', 'images'],
-        },
+            required: ['title', 'location', 'price', 'images']
+        }
     }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Room created successfully' }),
     (0, swagger_2.ApiBearerAuth)(),
@@ -143,4 +140,43 @@ exports.RoomsController = RoomsController = __decorate([
     (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [rooms_service_1.RoomsService])
 ], RoomsController);
+let AdminRoomsController = class AdminRoomsController {
+    roomsService;
+    constructor(roomsService) {
+        this.roomsService = roomsService;
+    }
+    getAllRoomsForAdmin() {
+        return this.roomsService.getAllRoomsWithHost();
+    }
+    deleteRoomByAdmin(id) {
+        return this.roomsService.delete(id);
+    }
+};
+exports.AdminRoomsController = AdminRoomsController;
+__decorate([
+    (0, common_1.Get)(),
+    (0, roles_decorator_1.Roles)(user_schema_1.UserRole.ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Admin: View all rooms with host details' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'All room listings with hosts' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AdminRoomsController.prototype, "getAllRoomsForAdmin", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, roles_decorator_1.Roles)(user_schema_1.UserRole.ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Admin: Delete a room by ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Room deleted successfully' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AdminRoomsController.prototype, "deleteRoomByAdmin", null);
+exports.AdminRoomsController = AdminRoomsController = __decorate([
+    (0, swagger_2.ApiTags)('Admin-Rooms'),
+    (0, swagger_2.ApiBearerAuth)('JWT-auth'),
+    (0, common_1.Controller)('admin/rooms'),
+    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    __metadata("design:paramtypes", [rooms_service_1.RoomsService])
+], AdminRoomsController);
 //# sourceMappingURL=rooms.controller.js.map

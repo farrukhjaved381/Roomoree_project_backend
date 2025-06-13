@@ -83,6 +83,12 @@ let RoomsService = class RoomsService {
         })
             .exec();
     }
+    async getAllRoomsWithHost() {
+        return this.roomModel
+            .find()
+            .populate('host', 'name email role')
+            .exec();
+    }
 };
 exports.RoomsService = RoomsService;
 exports.RoomsService = RoomsService = __decorate([

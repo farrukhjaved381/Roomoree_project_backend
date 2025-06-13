@@ -13,9 +13,6 @@ export class UsersService {
     return this.userModel.findOne({ email }).exec();
   }
 
-  async findAll(): Promise<UserDocument[]> {
-    return this.userModel.find().exec();
-  }
 
   async create(createUserDto: CreateUserDto): Promise<UserDocument> {
     const { email, password, ...rest } = createUserDto;
@@ -43,4 +40,14 @@ export class UsersService {
       resetPasswordExpires: { $gt: new Date() },
     }).exec();
   }
+
+
+async findAll() {
+  return this.userModel.find().select('-password').exec();
+}
+
+async delete(id: string) {
+  return this.userModel.findByIdAndDelete(id);
+}
+
 }

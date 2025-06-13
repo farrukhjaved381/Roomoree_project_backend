@@ -47,6 +47,7 @@ export declare class AuthController {
             name: string;
             email: string;
             role: string;
+            provider: "local" | "google";
         };
     }>;
 }

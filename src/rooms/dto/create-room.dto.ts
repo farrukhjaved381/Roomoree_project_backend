@@ -10,7 +10,7 @@ export class CreateRoomDto {
   description?: string;
 
   @IsNumber()
-  @Type(() => Number) // ✅ Fixes your issue
+  @Type(() => Number) 
   price: number;
 
   @IsString()

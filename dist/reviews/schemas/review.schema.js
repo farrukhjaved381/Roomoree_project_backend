@@ -13,26 +13,31 @@ exports.ReviewSchema = exports.Review = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 let Review = class Review {
-    guest;
-    room;
+    reviewer;
+    reviewee;
+    booking;
     rating;
     comment;
 };
 exports.Review = Review;
 __decorate([
-    (0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'User', required: true }),
+    (0, mongoose_1.Prop)({ required: true, type: mongoose_2.default.Schema.Types.ObjectId, ref: 'User' }),
     __metadata("design:type", mongoose_2.default.Types.ObjectId)
-], Review.prototype, "guest", void 0);
+], Review.prototype, "reviewer", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Room', required: true }),
+    (0, mongoose_1.Prop)({ required: true, type: mongoose_2.default.Schema.Types.ObjectId, ref: 'User' }),
     __metadata("design:type", mongoose_2.default.Types.ObjectId)
-], Review.prototype, "room", void 0);
+], Review.prototype, "reviewee", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true, type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Booking' }),
+    __metadata("design:type", mongoose_2.default.Types.ObjectId)
+], Review.prototype, "booking", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true, min: 1, max: 5 }),
     __metadata("design:type", Number)
 ], Review.prototype, "rating", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], Review.prototype, "comment", void 0);
 exports.Review = Review = __decorate([

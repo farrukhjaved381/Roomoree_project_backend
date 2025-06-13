@@ -1,16 +1,24 @@
 // src/auth/dto/create-user.dto.ts
-import { IsEmail, IsEnum, IsNotEmpty, MinLength, IsOptional, IsBoolean, IsString, IsDate } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger'; // Import ApiProperty
-import { UserRole } from '../../users/schemas/user.schema'; // Assuming UserRole enum is defined here
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  MinLength,
+  IsOptional,
+  IsBoolean,
+  IsString,
+  IsDate,
+} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from '../../users/schemas/user.schema';
 
 export class CreateUserDto {
   @ApiProperty({
     description: 'The full name of the user',
-    example: 'John Doe',
+    example: 'Muhammad Farrukh',
   })
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ example: 'Muhammad Farrukh' })
   name: string;
 
   @ApiProperty({
@@ -32,10 +40,10 @@ export class CreateUserDto {
 
   @ApiProperty({
     description: 'The role of the user (GUEST, HOST, or ADMIN)',
-    enum: UserRole, // Specifies that this property should be one of the UserRole enum values
+    enum: UserRole,
     example: UserRole.GUEST,
     default: UserRole.GUEST,
-    required: false, // Assuming it's optional and defaults
+    required: false,
   })
   @IsEnum(UserRole)
   @IsOptional()
@@ -67,4 +75,15 @@ export class CreateUserDto {
   @IsOptional()
   @IsDate()
   verificationTokenExpires?: Date;
+
+  @ApiProperty({
+    description: 'Authentication provider (local or google)',
+    example: 'local',
+    enum: ['local', 'google'],
+    required: false,
+    default: 'local',
+  })
+  @IsOptional()
+  @IsEnum(['local', 'google'])
+  provider?: 'local' | 'google';
 }

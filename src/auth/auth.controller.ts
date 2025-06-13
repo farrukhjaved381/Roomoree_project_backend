@@ -46,7 +46,9 @@ export class AuthController {
       verificationToken,
       verificationTokenExpires,
       isVerified: false,
+      provider: 'local', // ✅ optional, because default already handles it
     });
+    
 
     console.log('Sending verification to:', user.email);
     console.log('Token stored:', verificationToken);
@@ -132,38 +134,28 @@ export class AuthController {
 
     if (!user) {
       // New Google user
-      const verificationToken = randomBytes(32).toString('hex');
-      const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
       user = await this.usersService.create({
         email,
         name,
         password: '',
         role: UserRole.GUEST,
-        isVerified: false,
-        verificationToken,
-        verificationTokenExpires,
+        isVerified: true,
+        verificationToken:undefined,
+        verificationTokenExpires:undefined,
+        provider: 'google',
       });
 
-      console.log('Created Google user. Token:', verificationToken);
-      await this.emailService.sendVerificationEmail(email, verificationToken);
-    } else if (!user.isVerified) {
-      // Unverified Google user — update token
-      const verificationToken = randomBytes(32).toString('hex');
-      const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      console.log('Created new Google user — auto verified');
 
-      user.verificationToken = verificationToken;
-      user.verificationTokenExpires = verificationTokenExpires;
-      await user.save();
-
-      console.log('Resent Google user token:', verificationToken);
-      await this.emailService.sendVerificationEmail(email, verificationToken);
-    }
+    } 
 
     // Prevent login until verified
-    if (!user.isVerified) {
+    if (!user.isVerified && user.password) {
+      // Only block unverified LOCAL users (they have a password)
       throw new UnauthorizedException('Please verify your email before logging in.');
     }
+    
 
     const payload = { sub: user._id, email: user.email, role: user.role };
     const accessToken = this.jwtService.sign(payload);
@@ -175,6 +167,7 @@ export class AuthController {
         name: user.name,
         email: user.email,
         role: user.role,
+        provider: user.provider,
       },
     };
   }

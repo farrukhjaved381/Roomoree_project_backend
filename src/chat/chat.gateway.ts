@@ -49,8 +49,8 @@ import mongoose from 'mongoose';
           this.logger.warn('Socket auth failed');
           socket.disconnect();
         }
-    }
-      
+      }
+  
     handleDisconnect(socket: Socket) {
       const userId = this.users.get(socket.id);
       this.users.delete(socket.id);

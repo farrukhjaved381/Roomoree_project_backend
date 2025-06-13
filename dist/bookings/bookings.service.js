@@ -26,35 +26,67 @@ let BookingsService = class BookingsService {
         this.bookingModel = bookingModel;
         this.roomModel = roomModel;
     }
-    async create(createDto, guestId) {
-        const booking = new this.bookingModel({ ...createDto, guest: guestId });
-        return booking.save();
+    async create(dto, guestId) {
+        const { room, checkInDate, checkOutDate } = dto;
+        const conflict = await this.bookingModel.exists({
+            room,
+            $or: [
+                {
+                    checkInDate: { $lt: new Date(checkOutDate) },
+                    checkOutDate: { $gt: new Date(checkInDate) },
+                },
+            ],
+        });
+        if (conflict) {
+            throw new common_1.BadRequestException('This room is already booked during those dates.');
+        }
+        const booking = new this.bookingModel({
+            room,
+            guest: guestId,
+            checkInDate,
+            checkOutDate,
+            status: booking_status_enum_1.BookingStatus.PENDING,
+        });
+        const savedBooking = await booking.save();
+        return this.bookingModel
+            .findById(savedBooking._id)
+            .populate([
+            { path: 'room', populate: { path: 'host' } },
+            { path: 'guest', select: '-password -__v' },
+        ])
+            .exec();
     }
     async findGuestBookings(guestId) {
         return (await this.bookingModel
             .find({ guest: guestId })
-            .populate({ path: 'room', populate: { path: 'host' } })
+            .populate([
+            { path: 'room', populate: { path: 'host' } },
+            { path: 'guest', select: '-password -__v' },
+        ])
             .exec());
     }
     async findHostBookings(hostId) {
         return (await this.bookingModel
             .find()
-            .populate({
-            path: 'room',
-            populate: { path: 'host' },
-            match: { host: hostId },
-        })
+            .populate([
+            { path: 'room', populate: { path: 'host' } },
+            { path: 'guest', select: '-password -__v' },
+        ])
             .exec());
     }
     async deleteBooking(id, userId) {
         const booking = await this.bookingModel
             .findById(id)
-            .populate({ path: 'room', populate: { path: 'host' } })
+            .populate([
+            { path: 'room', populate: { path: 'host' } },
+            { path: 'guest', select: '-password -__v' },
+        ])
             .exec();
         if (!booking)
             throw new common_1.NotFoundException('Booking not found');
-        if (booking.guest.toString() !== userId &&
-            booking.room.host.toString() !== userId) {
+        const guest = booking.guest;
+        const host = booking.room.host;
+        if (guest._id.toString() !== userId && host._id.toString() !== userId) {
             throw new common_1.ForbiddenException('You are not allowed to cancel this booking');
         }
         await this.bookingModel.findByIdAndDelete(id);
@@ -62,44 +94,110 @@ let BookingsService = class BookingsService {
     async acceptBooking(bookingId, hostId) {
         const booking = await this.bookingModel
             .findById(bookingId)
-            .populate({
-            path: 'room',
-            populate: { path: 'host' }
-        })
+            .populate([
+            { path: 'room', populate: { path: 'host' } },
+            { path: 'guest', select: '-password -__v' },
+        ])
             .exec();
         if (!booking)
             throw new common_1.NotFoundException('Booking not found.');
-        const room = booking.room;
-        const host = room.host;
-        const roomHostId = host._id?.toString?.() ?? host?.toString?.();
-        console.log('Host in DB:', roomHostId);
-        console.log('Host from token:', hostId);
-        if (roomHostId !== hostId) {
+        const host = booking.room.host;
+        if (host._id.toString() !== hostId) {
             throw new common_1.ForbiddenException('You are not allowed to accept this booking.');
         }
         booking.status = booking_status_enum_1.BookingStatus.ACCEPTED;
-        return booking.save();
+        await booking.save();
+        return this.bookingModel
+            .findById(bookingId)
+            .populate([
+            { path: 'room', populate: { path: 'host' } },
+            { path: 'guest', select: '-password -__v' },
+        ])
+            .exec();
     }
     async declineBooking(bookingId, hostId) {
         const booking = await this.bookingModel
             .findById(bookingId)
-            .populate({
-            path: 'room',
-            populate: { path: 'host' }
-        })
+            .populate([
+            { path: 'room', populate: { path: 'host' } },
+            { path: 'guest', select: '-password -__v' },
+        ])
             .exec();
         if (!booking)
             throw new common_1.NotFoundException('Booking not found.');
-        const room = booking.room;
-        const host = room.host;
-        const roomHostId = host._id?.toString?.() ?? host?.toString?.();
-        console.log('Host in DB:', roomHostId);
-        console.log('Host from token:', hostId);
-        if (roomHostId !== hostId) {
+        const host = booking.room.host;
+        if (host._id.toString() !== hostId) {
             throw new common_1.ForbiddenException('You are not allowed to decline this booking.');
         }
         booking.status = booking_status_enum_1.BookingStatus.DECLINED;
-        return booking.save();
+        await booking.save();
+        return this.bookingModel
+            .findById(bookingId)
+            .populate([
+            { path: 'room', populate: { path: 'host' } },
+            { path: 'guest', select: '-password -__v' },
+        ])
+            .exec();
+    }
+    async getUpcomingBookings(guestId) {
+        return this.bookingModel
+            .find({
+            guest: guestId,
+            checkInDate: { $gte: new Date() },
+        })
+            .populate([
+            { path: 'room', populate: { path: 'host' } },
+            { path: 'guest', select: '-password -__v' },
+        ])
+            .exec();
+    }
+    async getPastBookings(guestId) {
+        return this.bookingModel
+            .find({
+            guest: guestId,
+            checkOutDate: { $lt: new Date() },
+        })
+            .populate([
+            { path: 'room', populate: { path: 'host' } },
+            { path: 'guest', select: '-password -__v' },
+        ])
+            .exec();
+    }
+    async getGuestCalendar(userId) {
+        return this.bookingModel
+            .find({ guest: userId, status: booking_status_enum_1.BookingStatus.ACCEPTED })
+            .select('checkInDate checkOutDate room')
+            .populate({ path: 'room', select: 'title location price images' })
+            .exec();
+    }
+    async getHostCalendar(userId) {
+        const rooms = await this.roomModel.find({ host: userId }).select('_id');
+        const roomIds = rooms.map(r => r._id);
+        return this.bookingModel
+            .find({ room: { $in: roomIds }, status: booking_status_enum_1.BookingStatus.ACCEPTED })
+            .select('checkInDate checkOutDate guest room')
+            .populate([
+            { path: 'guest', select: 'name email' },
+            { path: 'room', select: 'title location price images' },
+        ])
+            .exec();
+    }
+    async checkRoomAvailability(roomId, from, to) {
+        const conflicts = await this.bookingModel.find({
+            room: roomId,
+            status: booking_status_enum_1.BookingStatus.ACCEPTED,
+            $or: [
+                {
+                    checkInDate: { $lt: to },
+                    checkOutDate: { $gt: from },
+                }
+            ],
+        }).select('checkInDate checkOutDate');
+        return {
+            roomId,
+            available: conflicts.length === 0,
+            conflicts,
+        };
     }
 };
 exports.BookingsService = BookingsService;

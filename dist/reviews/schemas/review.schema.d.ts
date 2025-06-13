@@ -1,8 +1,9 @@
 import mongoose, { Document } from 'mongoose';
 export type ReviewDocument = Review & Document;
 export declare class Review {
-    guest: mongoose.Types.ObjectId;
-    room: mongoose.Types.ObjectId;
+    reviewer: mongoose.Types.ObjectId;
+    reviewee: mongoose.Types.ObjectId;
+    booking: mongoose.Types.ObjectId;
     rating: number;
     comment: string;
 }
