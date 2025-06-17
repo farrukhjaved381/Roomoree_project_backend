@@ -12,7 +12,8 @@ import { Booking, BookingSchema } from './bookings/schemas/booking.schema';
 import { ReviewsModule } from './reviews/reviews.module';
 import { AdminModule } from './admin/admin.module';
 import { DisputesModule } from './disputes/disputes.module';
-
+import { PaymentsModule } from './payments/payments.module';
+import { StripeModule } from './stripe/stripe.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -29,6 +30,8 @@ import { DisputesModule } from './disputes/disputes.module';
     AdminModule,
     ChatModule,
     DisputesModule,
+    PaymentsModule,
+    StripeModule,
   ],
 })
 export class AppModule {}

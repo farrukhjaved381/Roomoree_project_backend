@@ -5,11 +5,22 @@ import { UpdateUserDto } from '../users/dto/update-user.dto';
 import { UpdateBookingDto } from '../bookings/dto/update-booking.dto';
 import { UpdateRoomDto } from '../rooms/dto/update-room.dto';
 import { Room, RoomDocument } from '../rooms/schemas/room.schema';
+import { Dispute } from 'src/disputes/schemas/dispute.schema';
 export declare class AdminService {
     private userModel;
     private bookingModel;
     private roomModel;
-    constructor(userModel: Model<UserDocument>, bookingModel: Model<BookingDocument>, roomModel: Model<RoomDocument>);
+    private disputeModel;
+    constructor(userModel: Model<UserDocument>, bookingModel: Model<BookingDocument>, roomModel: Model<RoomDocument>, disputeModel: Model<Dispute>);
+    getAnalytics(): Promise<{
+        totalUsers: number;
+        totalHosts: number;
+        totalGuests: number;
+        totalRooms: number;
+        totalBookings: number;
+        totalDisputes: number;
+        totalRevenue: any;
+    }>;
     findAllUsers(): Promise<(import("mongoose").Document<unknown, {}, UserDocument, {}> & User & import("mongoose").Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {

@@ -26,7 +26,13 @@ import { Room } from '../rooms/schemas/room.schema';
 @Roles(UserRole.ADMIN)
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly adminService: AdminService) { }
+  // Get analytics
+  @Get('analytics')
+  @Roles(UserRole.ADMIN)
+  getAnalytics() {
+    return this.adminService.getAnalytics();
+  }
 
   // USERS
   @Get('users')
@@ -65,30 +71,30 @@ export class AdminController {
   updateBooking(@Param('id') id: string, @Body() updateDto: UpdateBookingDto) {
     return this.adminService.updateBooking(id, updateDto);
   }
-   // 🏘 Get all room listings
-   @Get('rooms')
-   @ApiOperation({ summary: 'Get all rooms (Admin)' })
-   @ApiResponse({ status: 200, type: [Room] })
-   async getAllRooms() {
-     return this.adminService.getAllRooms();
-   }
- 
-   // ❌ Delete a room
-   @Delete('rooms/:id')
-   @ApiOperation({ summary: 'Delete room by ID (Admin)' })
-   @ApiResponse({ status: 200, description: 'Room deleted' })
-   async deleteRoom(@Param('id') roomId: string) {
-     return this.adminService.deleteRoom(roomId);
-   }
- 
-   // ✏️ Optional: Update room details
-   @Patch('rooms/:id')
-   @ApiOperation({ summary: 'Update room info (Admin)' })
-   @ApiResponse({ status: 200, description: 'Room updated', type: Room })
-   async updateRoom(
-     @Param('id') roomId: string,
-     @Body() updateDto: UpdateRoomDto,
-   ) {
-     return this.adminService.updateRoom(roomId, updateDto);
-   }
+  // 🏘 Get all room listings
+  @Get('rooms')
+  @ApiOperation({ summary: 'Get all rooms (Admin)' })
+  @ApiResponse({ status: 200, type: [Room] })
+  async getAllRooms() {
+    return this.adminService.getAllRooms();
+  }
+
+  // ❌ Delete a room
+  @Delete('rooms/:id')
+  @ApiOperation({ summary: 'Delete room by ID (Admin)' })
+  @ApiResponse({ status: 200, description: 'Room deleted' })
+  async deleteRoom(@Param('id') roomId: string) {
+    return this.adminService.deleteRoom(roomId);
+  }
+
+  // ✏️ Optional: Update room details
+  @Patch('rooms/:id')
+  @ApiOperation({ summary: 'Update room info (Admin)' })
+  @ApiResponse({ status: 200, description: 'Room updated', type: Room })
+  async updateRoom(
+    @Param('id') roomId: string,
+    @Body() updateDto: UpdateRoomDto,
+  ) {
+    return this.adminService.updateRoom(roomId, updateDto);
+  }
 }

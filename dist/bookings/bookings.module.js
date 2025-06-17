@@ -24,6 +24,9 @@ exports.BookingsModule = BookingsModule = __decorate([
                 { name: room_schema_1.Room.name, schema: room_schema_1.RoomSchema },
             ]),
         ],
+        exports: [
+            mongoose_1.MongooseModule,
+        ],
         controllers: [bookings_controller_1.BookingsController],
         providers: [bookings_service_1.BookingsService],
     })

@@ -6,11 +6,15 @@ const config_1 = require("@nestjs/config");
 const path_1 = require("path");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
+const express_1 = require("express");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.useStaticAssets((0, path_1.join)(__dirname, '..', 'uploads'), {
         prefix: '/uploads',
     });
+    app.use('/payments/webhook', (0, express_1.raw)({ type: 'application/json' }));
+    app.use((0, express_1.json)());
+    app.use((0, express_1.urlencoded)({ extended: true }));
     app.enableCors({
         origin: 'http://localhost:3001',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
@@ -24,14 +28,12 @@ async function bootstrap() {
     }));
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Roomoree API')
-        .setDescription('Roomoree booking platform API documentation. Use JWT Bearer token for access.')
+        .setDescription('Roomoree booking platform API documentation')
         .setVersion('1.0')
         .addBearerAuth({
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        name: 'Authorization',
-        description: 'Enter JWT token here (e.g., after login or Google OAuth)',
         in: 'header',
     }, 'JWT-auth')
         .build();

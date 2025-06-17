@@ -13,13 +13,25 @@ export class Booking {
   room: Types.ObjectId;
 
   @Prop({ required: true })
-  checkIn: Date;
+  checkInDate: Date;
 
   @Prop({ required: true })
-  checkOut: Date;
+  checkOutDate: Date;
 
   @Prop({ enum: BookingStatus, default: BookingStatus.PENDING })
   status: BookingStatus;
+
+  @Prop({ default: 'pending' }) // 'pending' | 'paid'
+  paymentStatus: string;
+
+  @Prop()
+  paymentIntentId?: string;
+
+  @Prop()
+  paidAt?: Date;
+
+  @Prop()
+  transactionId?: string; // optional for Stripe txn ID
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);

@@ -16,9 +16,13 @@ const booking_status_enum_1 = require("../enums/booking-status.enum");
 let Booking = class Booking {
     guest;
     room;
-    checkIn;
-    checkOut;
+    checkInDate;
+    checkOutDate;
     status;
+    paymentStatus;
+    paymentIntentId;
+    paidAt;
+    transactionId;
 };
 exports.Booking = Booking;
 __decorate([
@@ -32,15 +36,31 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", Date)
-], Booking.prototype, "checkIn", void 0);
+], Booking.prototype, "checkInDate", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", Date)
-], Booking.prototype, "checkOut", void 0);
+], Booking.prototype, "checkOutDate", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ enum: booking_status_enum_1.BookingStatus, default: booking_status_enum_1.BookingStatus.PENDING }),
     __metadata("design:type", String)
 ], Booking.prototype, "status", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: 'pending' }),
+    __metadata("design:type", String)
+], Booking.prototype, "paymentStatus", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Booking.prototype, "paymentIntentId", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", Date)
+], Booking.prototype, "paidAt", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Booking.prototype, "transactionId", void 0);
 exports.Booking = Booking = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Booking);

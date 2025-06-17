@@ -29,6 +29,9 @@ let AdminController = class AdminController {
     constructor(adminService) {
         this.adminService = adminService;
     }
+    getAnalytics() {
+        return this.adminService.getAnalytics();
+    }
     findAllUsers() {
         return this.adminService.findAllUsers();
     }
@@ -58,6 +61,13 @@ let AdminController = class AdminController {
     }
 };
 exports.AdminController = AdminController;
+__decorate([
+    (0, common_1.Get)('analytics'),
+    (0, roles_decorator_1.Roles)(user_schema_1.UserRole.ADMIN),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "getAnalytics", null);
 __decorate([
     (0, common_1.Get)('users'),
     (0, swagger_1.ApiOperation)({ summary: 'View all users' }),

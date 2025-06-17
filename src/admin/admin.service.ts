@@ -10,6 +10,7 @@ import { UpdateUserDto } from '../users/dto/update-user.dto';
 import { UpdateBookingDto } from '../bookings/dto/update-booking.dto';
 import { UpdateRoomDto } from '../rooms/dto/update-room.dto';
 import { Room, RoomDocument } from '../rooms/schemas/room.schema';
+import { Dispute } from 'src/disputes/schemas/dispute.schema';
 
 @Injectable()
 export class AdminService {
@@ -17,7 +18,39 @@ export class AdminService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
     @InjectModel(Room.name) private roomModel: Model<RoomDocument>,
+    @InjectModel(Dispute.name) private disputeModel: Model<Dispute>,
   ) {}
+
+  // get analytics
+  async getAnalytics() {
+    const [totalUsers, totalHosts, totalGuests] = await Promise.all([
+      this.userModel.countDocuments(),
+      this.userModel.countDocuments({ role: /host/i }),   // fix
+      this.userModel.countDocuments({ role: /guest/i }),  // fix
+    ]);
+    
+
+    const totalRooms = await this.roomModel.countDocuments();
+    const totalBookings = await this.bookingModel.countDocuments();
+    const totalDisputes = await this.disputeModel.countDocuments();
+
+    const revenueResult = await this.bookingModel.aggregate([
+      { $match: { status: 'completed' } },
+      { $group: { _id: null, total: { $sum: '$totalPrice' } } },
+    ]);
+
+    const totalRevenue = revenueResult[0]?.total || 0;
+
+    return {
+      totalUsers,
+      totalHosts,
+      totalGuests,
+      totalRooms,
+      totalBookings,
+      totalDisputes,
+      totalRevenue,
+    };
+  }
 
   // USERS
   async findAllUsers() {

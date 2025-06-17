@@ -14,6 +14,7 @@ const mongoose_1 = require("@nestjs/mongoose");
 const user_schema_1 = require("../users/schemas/user.schema");
 const booking_schema_1 = require("../bookings/schemas/booking.schema");
 const room_schema_1 = require("../rooms/schemas/room.schema");
+const dispute_schema_1 = require("../disputes/schemas/dispute.schema");
 let AdminModule = class AdminModule {
 };
 exports.AdminModule = AdminModule;
@@ -24,6 +25,7 @@ exports.AdminModule = AdminModule = __decorate([
                 { name: user_schema_1.User.name, schema: user_schema_1.UserSchema },
                 { name: booking_schema_1.Booking.name, schema: booking_schema_1.BookingSchema },
                 { name: room_schema_1.Room.name, schema: room_schema_1.RoomSchema },
+                { name: dispute_schema_1.Dispute.name, schema: dispute_schema_1.DisputeSchema },
             ]),
         ],
         controllers: [admin_controller_1.AdminController],

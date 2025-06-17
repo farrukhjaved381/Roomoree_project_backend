@@ -20,6 +20,8 @@ const booking_schema_1 = require("./bookings/schemas/booking.schema");
 const reviews_module_1 = require("./reviews/reviews.module");
 const admin_module_1 = require("./admin/admin.module");
 const disputes_module_1 = require("./disputes/disputes.module");
+const payments_module_1 = require("./payments/payments.module");
+const stripe_module_1 = require("./stripe/stripe.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -40,6 +42,8 @@ exports.AppModule = AppModule = __decorate([
             admin_module_1.AdminModule,
             chat_module_1.ChatModule,
             disputes_module_1.DisputesModule,
+            payments_module_1.PaymentsModule,
+            stripe_module_1.StripeModule,
         ],
     })
 ], AppModule);

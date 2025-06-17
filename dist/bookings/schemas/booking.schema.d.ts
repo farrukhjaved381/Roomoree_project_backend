@@ -4,9 +4,13 @@ export type BookingDocument = Booking & Document;
 export declare class Booking {
     guest: Types.ObjectId;
     room: Types.ObjectId;
-    checkIn: Date;
-    checkOut: Date;
+    checkInDate: Date;
+    checkOutDate: Date;
     status: BookingStatus;
+    paymentStatus: string;
+    paymentIntentId?: string;
+    paidAt?: Date;
+    transactionId?: string;
 }
 export declare const BookingSchema: import("mongoose").Schema<Booking, import("mongoose").Model<Booking, any, any, any, Document<unknown, any, Booking, any> & Booking & {
     _id: Types.ObjectId;

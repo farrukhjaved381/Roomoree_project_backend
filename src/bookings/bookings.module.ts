@@ -14,6 +14,9 @@ import { Room, RoomSchema } from '../rooms/schemas/room.schema';
       { name: Room.name, schema: RoomSchema },
     ]),
   ],
+  exports: [
+    MongooseModule, // 👈 Must export it so other modules like StripeModule can use it
+  ],
   controllers: [BookingsController],
   providers: [BookingsService],
 })

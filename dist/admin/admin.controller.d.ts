@@ -6,6 +6,15 @@ import { Room } from '../rooms/schemas/room.schema';
 export declare class AdminController {
     private readonly adminService;
     constructor(adminService: AdminService);
+    getAnalytics(): Promise<{
+        totalUsers: number;
+        totalHosts: number;
+        totalGuests: number;
+        totalRooms: number;
+        totalBookings: number;
+        totalDisputes: number;
+        totalRevenue: any;
+    }>;
     findAllUsers(): Promise<(import("mongoose").Document<unknown, {}, import("../users/schemas/user.schema").UserDocument, {}> & import("../users/schemas/user.schema").User & import("mongoose").Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {

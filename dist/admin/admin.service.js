@@ -19,14 +19,41 @@ const mongoose_2 = require("mongoose");
 const user_schema_1 = require("../users/schemas/user.schema");
 const booking_schema_1 = require("../bookings/schemas/booking.schema");
 const room_schema_1 = require("../rooms/schemas/room.schema");
+const dispute_schema_1 = require("../disputes/schemas/dispute.schema");
 let AdminService = class AdminService {
     userModel;
     bookingModel;
     roomModel;
-    constructor(userModel, bookingModel, roomModel) {
+    disputeModel;
+    constructor(userModel, bookingModel, roomModel, disputeModel) {
         this.userModel = userModel;
         this.bookingModel = bookingModel;
         this.roomModel = roomModel;
+        this.disputeModel = disputeModel;
+    }
+    async getAnalytics() {
+        const [totalUsers, totalHosts, totalGuests] = await Promise.all([
+            this.userModel.countDocuments(),
+            this.userModel.countDocuments({ role: /host/i }),
+            this.userModel.countDocuments({ role: /guest/i }),
+        ]);
+        const totalRooms = await this.roomModel.countDocuments();
+        const totalBookings = await this.bookingModel.countDocuments();
+        const totalDisputes = await this.disputeModel.countDocuments();
+        const revenueResult = await this.bookingModel.aggregate([
+            { $match: { status: 'completed' } },
+            { $group: { _id: null, total: { $sum: '$totalPrice' } } },
+        ]);
+        const totalRevenue = revenueResult[0]?.total || 0;
+        return {
+            totalUsers,
+            totalHosts,
+            totalGuests,
+            totalRooms,
+            totalBookings,
+            totalDisputes,
+            totalRevenue,
+        };
     }
     async findAllUsers() {
         return this.userModel.find().select('-password');
@@ -84,7 +111,9 @@ exports.AdminService = AdminService = __decorate([
     __param(0, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
     __param(1, (0, mongoose_1.InjectModel)(booking_schema_1.Booking.name)),
     __param(2, (0, mongoose_1.InjectModel)(room_schema_1.Room.name)),
+    __param(3, (0, mongoose_1.InjectModel)(dispute_schema_1.Dispute.name)),
     __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model,
         mongoose_2.Model,
         mongoose_2.Model])
 ], AdminService);
